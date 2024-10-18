@@ -107,6 +107,4 @@ if __name__ == "__main__":
     main()
 
 
-# Add requirements.txt
-    # https://www.freecodecamp.org/news/python-requirementstxt-explained/#:~:text=requirements.txt%20is%20a%20file,environment%20and%20makes%20collaboration%20easier.
-    # pipenv instead? https://realpython.com/pipenv-guide/
+# TODO Add requirements.txt

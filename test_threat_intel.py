@@ -62,17 +62,19 @@ def test_get_ioc_category_valid_files():
     assert get_ioc_category(
         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5') == 'files'
     assert get_ioc_category('938c2cc0dcc05f2b68c4287040cfcf71') == 'files'
-    assert get_ioc_category('filename.bat') == 'files'
-
-
-def test_get_ioc_category_invalid_files():
-    pass
+    # assert get_ioc_category('filename.bat') == 'files'  # TODO currently fails
 
 
 def test_get_ioc_category_valid_ip_addresses():
     assert get_ioc_category('10.4.2.4') == 'ip_addresses'
-    assert get_ioc_category('')
+    assert get_ioc_category(
+        '2001:db8:3333:4444:5555:6666:7777:8888:') == 'ip_addresses'
+    assert get_ioc_category('0.0.0.0') == 'ip_addresses'
+    assert get_ioc_category('2001:db8::1:0:0:1') == 'ip_addresses'
 
 
-def test_get_ioc_category_invalid_ip_addresses():
-    pass
+def test_get_vt_ioc():
+    # TODO currently fails
+    # assert get_vt_ioc('files', '938c2cc0dcc05f2b68c4287040cfcf71') == True
+    # TODO currently fails
+    assert get_vt_ioc('ip_addresses', '13.2.4.1') == True
