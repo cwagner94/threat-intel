@@ -29,9 +29,9 @@ class IpAddress:
 
 
 def main():
-    search_term = get_user_input()
+    # search_term = get_user_input()
     # search_term = "e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5"
-    search_term = "134.23.1.5"
+    search_term = '13.2.4.1'
     if user_input_is_valid(search_term):
         ioc_category = get_ioc_category(search_term)
         pprint(get_vt_ioc(search_term, ioc_category))
@@ -50,11 +50,14 @@ def user_input_is_valid(user_input):
 
 
 def get_ioc_category(search_term):
-    # TODO add regex for url matching
-    if is_sha256(search_term) or is_md5(search_term):
+    if is_sha256(search_term) or is_md5(search_term) or is_filename(search_term):
         return 'files'
     if is_ipv4(search_term) or is_ipv6(search_term):
         return 'ip_addresses'
+    if is_url(search_term):
+        return 'urls'
+    if is_domain(search_term):
+        return 'domains'
 
 
 def is_sha256(search_term):
@@ -93,6 +96,24 @@ def is_ipv6(search_term):
         return False
 
 
+def is_filename(search_term):
+    # TODO refine regex to say NOT .com, .net, .org, .edu, etc.
+    filename_regex = r"\b[\w,\s-]+\.([a-zA-Z]{2}|[a-zA-Z]{3})\b"
+    filename_match = re.search(filename_regex, search_term)
+    if filename_match:
+        return True
+    else:
+        return False
+
+
+def is_domain():
+    pass
+
+
+def is_url():
+    pass
+
+
 def get_vt_ioc(id, field):
     url = f"https://www.virustotal.com/api/v3/{field}/{id}"
     headers = {
@@ -108,3 +129,7 @@ if __name__ == "__main__":
 
 
 # TODO Add requirements.txt
+# TODO Break up test_threat_intel.py into multiple files in tests folder
+# TODO How to differentiate between domains and filenames?
+    # Try files --> if error try domain
+    # Try urls --> if error try domain
