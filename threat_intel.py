@@ -30,8 +30,10 @@ class IpAddress:
 
 def main():
     search_term = get_user_input()
+    search_term = 'powershell.exe'
     if user_input_is_valid(search_term):
         ioc_category = get_ioc_category(search_term)
+        # ioc_category = "ip_addresses"
         pprint(get_vt_ioc(search_term, ioc_category))
 
 

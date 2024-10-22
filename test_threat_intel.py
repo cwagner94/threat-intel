@@ -137,15 +137,27 @@ def test_get_vt_ioc_ipv4():
     assert response.status_code == 200
 
 
-# def test_get_vt_ioc_ipv6():
-#     response = get_vt_ioc(
-#         '2001:db8:3333:4444:5555:6666:7777:8888:', 'ip_addresses')
-#     assert response.status_code == 200
+def test_get_vt_ioc_ipv6():
+    response = get_vt_ioc(
+        '2001:db8:3333:4444:5555:6666:7777:8888', 'ip_addresses')
+    assert response.status_code == 200
 
 
 # def test_get_vt_ioc_filename():
 #     response = get_vt_ioc(
 #         'powershell.exe', 'files')
+#     assert response.status_code == 200
+
+
+# def test_get_vt_ioc_filename():
+#     response = get_vt_ioc(
+#         'file.sh', 'files')
+#     assert response.status_code == 200
+
+
+# def test_get_vt_ioc_filename():
+#     response = get_vt_ioc(
+#         'update.js', 'files')
 #     assert response.status_code == 200
 
 
