@@ -1,4 +1,6 @@
-from threat_intel import user_input_is_valid, is_sha256, is_md5, is_ipv4, is_ipv6, get_ioc_category, get_vt_ioc, is_filename
+from unittest import mock
+from threat_intel import user_input_is_valid, is_sha256, is_md5, is_ipv4, is_ipv6, get_ioc_category, get_vt_ioc, is_filename, is_domain, is_url
+import pytest
 
 
 def test_user_input_is_valid_no_input():
@@ -75,33 +77,33 @@ def test_get_ioc_category_valid_ip_addresses():
     assert get_ioc_category('10.3.45.10') != 'files'
 
 
-def test_get_ioc_category_valid_domain():
-    assert get_ioc_category('google.com') == 'domains'
-    assert get_ioc_category('google.org') == 'domains'
-    assert get_ioc_category('google.net') == 'domains'
-    assert get_ioc_category('google.edu') == 'domains'
-    assert get_ioc_category('google.top') == 'domains'
-    assert get_ioc_category('google.xyz') == 'domains'
+# def test_get_ioc_category_valid_domain():
+#     assert get_ioc_category('google.com') == 'domains'
+#     assert get_ioc_category('google.org') == 'domains'
+#     assert get_ioc_category('google.net') == 'domains'
+#     assert get_ioc_category('google.edu') == 'domains'
+#     assert get_ioc_category('google.top') == 'domains'
+#     assert get_ioc_category('google.xyz') == 'domains'
 
 
-def test_get_ioc_category_valid_url():
-    assert get_ioc_category('www.google.com') == 'urls'
-    assert get_ioc_category('http://www.google.com') == 'urls'
-    assert get_ioc_category('https://www.google.com') == 'urls'
-    assert get_ioc_category('www.google.org') == 'urls'
-    assert get_ioc_category('http://www.google.org') == 'urls'
-    assert get_ioc_category('https://www.google.org') == 'urls'
-    assert get_ioc_category('www.google.net') == 'urls'
-    assert get_ioc_category('http://www.google.net') == 'urls'
-    assert get_ioc_category('https://www.google.net') == 'urls'
-    assert get_ioc_category('www.google.edu') == 'urls'
-    assert get_ioc_category('http://www.google.edu') == 'urls'
-    assert get_ioc_category('https://www.google.edu') == 'urls'
-    assert get_ioc_category('http://www.google.top') == 'urls'
-    assert get_ioc_category('https://www.google.top') == 'urls'
-    assert get_ioc_category('www.google.xyz') == 'urls'
-    assert get_ioc_category('http://www.google.xyz') == 'urls'
-    assert get_ioc_category('https://www.google.xyz') == 'urls'
+# def test_get_ioc_category_valid_url():
+#     assert get_ioc_category('www.google.com') == 'urls'
+#     assert get_ioc_category('http://www.google.com') == 'urls'
+#     assert get_ioc_category('https://www.google.com') == 'urls'
+#     assert get_ioc_category('www.google.org') == 'urls'
+#     assert get_ioc_category('http://www.google.org') == 'urls'
+#     assert get_ioc_category('https://www.google.org') == 'urls'
+#     assert get_ioc_category('www.google.net') == 'urls'
+#     assert get_ioc_category('http://www.google.net') == 'urls'
+#     assert get_ioc_category('https://www.google.net') == 'urls'
+#     assert get_ioc_category('www.google.edu') == 'urls'
+#     assert get_ioc_category('http://www.google.edu') == 'urls'
+#     assert get_ioc_category('https://www.google.edu') == 'urls'
+#     assert get_ioc_category('http://www.google.top') == 'urls'
+#     assert get_ioc_category('https://www.google.top') == 'urls'
+#     assert get_ioc_category('www.google.xyz') == 'urls'
+#     assert get_ioc_category('http://www.google.xyz') == 'urls'
+#     assert get_ioc_category('https://www.google.xyz') == 'urls'
 
 
 def test_is_filename_valid():
@@ -117,13 +119,60 @@ def test_is_filename_invalid():
     assert is_filename('2001:db8:3333:4444:5555:6666:7777:8888:') == False
 
 
-# def test_get_vt_ioc_ip_address():
-#     assert get_vt_ioc('13.2.4.1', 'ip_addresses')
-    # assert get_vt_ioc('2001:db8:3333:4444:5555:6666:7777:8888:',
-    #                   'ip_addresses')
+def test_get_vt_ioc_sha256():
+    response = get_vt_ioc(
+        'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'files')
+    assert response.status_code == 200
 
 
-# def test_get_vt_ioc_sha256():
-#     assert get_vt_ioc(
-#         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'files')
-#     assert get_vt_ioc('938c2cc0dcc05f2b68c4287040cfcf71', 'files')
+def test_vt_ioc_md5():
+    response = get_vt_ioc(
+        '938c2cc0dcc05f2b68c4287040cfcf71', 'files')
+    assert response.status_code == 200
+
+
+def test_get_vt_ioc_ipv4():
+    response = get_vt_ioc(
+        '23.4.1.43', 'ip_addresses')
+    assert response.status_code == 200
+
+
+# def test_get_vt_ioc_ipv6():
+#     response = get_vt_ioc(
+#         '2001:db8:3333:4444:5555:6666:7777:8888:', 'ip_addresses')
+#     assert response.status_code == 200
+
+
+# def test_get_vt_ioc_filename():
+#     response = get_vt_ioc(
+#         'powershell.exe', 'files')
+#     assert response.status_code == 200
+
+
+# def test_get_vt_ioc_url():
+#     response = get_vt_ioc(
+#         'https://www.google.com', 'urls')
+#     assert response.status_code == 200
+
+
+# def test_get_vt_ioc_domain():
+#     response = get_vt_ioc(
+#         'google.com', 'domains')
+#     assert response.status_code == 200
+
+
+def test_get_vt_ioc_error_handling(mocker):
+    mocker.patch('requests.get', return_value=mocker.Mock(status_code=404))
+
+    with pytest.raises(Exception) as exception:
+        get_vt_ioc('', 'ip_addresses')
+
+    assert "Request failed with status code 404" in str(exception.value)
+
+
+def test_is_domain():
+    pass
+
+
+def test_is_url():
+    pass

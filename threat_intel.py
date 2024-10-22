@@ -29,9 +29,7 @@ class IpAddress:
 
 
 def main():
-    # search_term = get_user_input()
-    # search_term = "e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5"
-    search_term = '13.2.4.1'
+    search_term = get_user_input()
     if user_input_is_valid(search_term):
         ioc_category = get_ioc_category(search_term)
         pprint(get_vt_ioc(search_term, ioc_category))
@@ -106,12 +104,22 @@ def is_filename(search_term):
         return False
 
 
-def is_domain():
-    pass
+def is_domain(search_term):
+    domain_regex = r"\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b"
+    domain_match = re.search(domain_regex, search_term)
+    if domain_match:
+        return True
+    else:
+        return False
 
 
-def is_url():
-    pass
+def is_url(search_term):
+    url_regex = r"\bhttps?:\/\/(?:www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(?:\/[^\s]*)?\b"
+    url_match = re.search(url_regex, search_term)
+    if url_match:
+        return True
+    else:
+        return False
 
 
 def get_vt_ioc(id, field):
@@ -121,7 +129,10 @@ def get_vt_ioc(id, field):
         "x-apikey": VT_API_KEY
     }
     response = requests.get(url, headers=headers)
-    return response.text
+    if response.status_code != 200:
+        raise Exception(
+            f'Request failed with status code {response.status_code}')
+    return response
 
 
 if __name__ == "__main__":
