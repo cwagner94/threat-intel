@@ -22,6 +22,30 @@ class UserInput:
             self.valid = False
 
 
+class VirusTotal:
+    def __init__(self, ioc, category):
+        self.api_key = VT_API_KEY
+        self.ioc = ioc
+        self.category = category
+        self.url = f"https://www.virustotal.com/api/v3/{category}/{ioc}"
+        self.api_response = ''
+        self.ioc_data = ''
+
+    def get_api_response(self):
+        headers = {
+            "accept": "application/json",
+            "x-apikey": self.api_key
+        }
+        response = requests.get(self.url, headers=headers)
+        if response.status_code != 200:
+            raise Exception(
+                f'Request failed with status code {response.status_code}')
+        self.api_response = response
+
+    def get_ioc_data(self):
+        self.ioc_data = self.api_response.json()
+
+
 class Ioc:
     def __init__(self, search_term):
         self.ioc = search_term
@@ -80,30 +104,6 @@ class Ioc:
             self.category = 'urls'
 
 
-class VirusTotal:
-    def __init__(self, ioc, category):
-        self.api_key = VT_API_KEY
-        self.ioc = ioc
-        self.category = category
-        self.url = f"https://www.virustotal.com/api/v3/{category}/{ioc}"
-        self.api_response = ''
-        self.ioc_data = ''
-
-    def get_api_response(self):
-        headers = {
-            "accept": "application/json",
-            "x-apikey": self.api_key
-        }
-        response = requests.get(self.url, headers=headers)
-        if response.status_code != 200:
-            raise Exception(
-                f'Request failed with status code {response.status_code}')
-        self.api_response = response
-
-    def get_ioc_data(self):
-        self.ioc_data = self.api_response.json()
-
-
 def main():
     user_input = UserInput()
     user_input.get_user_input()
@@ -129,4 +129,8 @@ if __name__ == "__main__":
     # Is this a filename?
     # yes - proceed with filenames
     # no - proceed with domains
-# Create Validator class or do validation elsewhere?
+# Program breaks if ioc matches on more than one category
+    # ex. both url and filename
+    # If conflict arises, ask user to specify
+    # Search for both, come back with the one that doesn't have an error
+    # What if they're both valid?
