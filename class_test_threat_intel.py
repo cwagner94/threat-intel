@@ -21,27 +21,37 @@ class TestUserInput:
 
 
 class TestVirusTotal:
-    # def test_get_api_response_404_status(self, mocker):
-    #     mocker.patch('requests.get', return_value=mocker.Mock(status_code=404))
+    @pytest.mark.parametrize("params, expected_status", [
+        ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
+        ({"ioc": '193.42.2.4', "category": "files"}, 404)
+    ])
+    def test_get_api_response_200_status(self, mocker, params, expected_status):
+        mocker.patch.object('os.getenv', return_value='mock_api_key')
+        mocker.patch.object('threat_intel.VirusTotal.get_api_response',
+                            return_value=mocker.Mock(status_code=expected_status))
+
+        result = VirusTotal.get_api_response(self, params)
+        assert result.status_code == expected_status
+
+    # def test_get_api_response_404_status(self, mocker, params, expected_status):
+    #     mocker.patch('os.getenv', return_value='mock_api_key')
+    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
+    #                  return_value=mocker.Mock(status_code=expected_status))
+
+    #     result = VirusTotal.get_api_response(self, params)
+    #     assert result.status_code == 404
+
+    # def test_get_api_response_404_error_message(self, mocker):
+    #     mocker.patch('os.getenv', return_value='mock_api_key')
+    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
+    #                  side_effect=Exception('mocked error'))
+    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
+    #                  return_value=mocker.Mock(status_code=404))
     #     with pytest.raises(Exception) as exception:
     #         VirusTotal.get_api_response(self)
-    #     assert "Request failed with status code 404" in str(exception.value)
 
-    def test_get_api_response_404_status(self, mocker):
-        mocker.patch('os.getenv', return_value='mock_api_key')
-        mocker.patch('threat_intel.VirusTotal.get_api_response',
-                     return_value=mocker.Mock(status_code=404))
-
-        result = VirusTotal.get_api_response(self)
-        assert result.status_code == 404
-
-    def test_get_api_response_200_status(self, mocker):
-        mocker.patch('os.getenv', return_value='mock_api_key')
-        mocker.patch('threat_intel.VirusTotal.get_api_response',
-                     return_value=mocker.Mock(status_code=200))
-
-        result = VirusTotal.get_api_response(self)
-        assert result.status_code == 200
+    #     assert exception.value.message == 'mocked error'
+    #     # assert "Request failed with status code 404" in str(exception.value)
 
     # def test_get_vt_ioc_sha256():
 #     response = get_vt_ioc(
