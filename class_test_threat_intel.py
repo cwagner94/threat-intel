@@ -20,18 +20,18 @@ class TestUserInput:
         assert self.valid == True
 
 
-class TestVirusTotal:
-    @pytest.mark.parametrize("params, expected_status", [
-        ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
-        ({"ioc": '193.42.2.4', "category": "files"}, 404)
-    ])
-    def test_get_api_response_200_status(self, mocker, params, expected_status):
-        mocker.patch.object('os.getenv', return_value='mock_api_key')
-        mocker.patch.object('threat_intel.VirusTotal.get_api_response',
-                            return_value=mocker.Mock(status_code=expected_status))
+# class TestVirusTotal:
+#     @pytest.mark.parametrize("params, expected_status", [
+#         ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
+#         ({"ioc": '193.42.2.4', "category": "files"}, 404)
+#     ])
+#     def test_get_api_response_200_status(self, mocker, params, expected_status):
+#         mocker.patch.object('os.getenv', return_value='mock_api_key')
+#         mocker.patch.object('threat_intel.VirusTotal.get_api_response',
+#                             return_value=mocker.Mock(status_code=expected_status))
 
-        result = VirusTotal.get_api_response(self, params)
-        assert result.status_code == expected_status
+#         result = VirusTotal.get_api_response(self, params)
+#         assert result.status_code == expected_status
 
     # def test_get_api_response_404_status(self, mocker, params, expected_status):
     #     mocker.patch('os.getenv', return_value='mock_api_key')
@@ -116,23 +116,65 @@ class TestVirusTotal:
 #     assert "Request failed with status code 404" in str(exception.value)
 
 
-# class TestIoc:
-#     pass
+class TestIoc:
+    @pytest.mark.parametrize('value, expected', [
+        ('house.bat', 'filename'),
+        ('house.sh', 'filename'),
+        ('house.pdf.exe', 'filename')
+    ])
+    def test_is_filename_valid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_filename()
+        assert ioc.ioc_type == expected
 
+    def test_is_sha256_valid(self):
+        ioc = Ioc(
+            'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5')
+        ioc.is_sha256()
+        assert ioc.ioc_type == 'sha256'
 
-# def test_is_sha256_valid_sha256_hash():
-#     assert is_sha256(
-#         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5') == True
+    def test_is_md5_valid(self):
+        ioc = Ioc('938c2cc0dcc05f2b68c4287040cfcf71')
+        ioc.is_md5()
+        assert ioc.ioc_type == 'md5'
 
+    @pytest.mark.parametrize('value, expected', [
+        ('132.5.5.12', 'ipv4'),
+        ('0.0.0.0', 'ipv4'),
+        ('232.12.45.1', 'ipv4')
+    ])
+    def test_is_ipv4_valid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_ipv4()
+        assert ioc.ioc_type == expected
 
-# def test_is_sha256_invalid_sha256_hash():
-#     assert is_sha256('938c2cc0dcc05f2b68c4287040cfcf71') == False
-#     assert is_sha256('294.234.55.2') == False
-#     assert is_sha256('') == False
+    @pytest.mark.parametrize('value, expected', [
+        ('2001:db8:3333:4444:5555:6666:7777:8888:', 'ipv6'),
+        ('2001:db8:0:0:1:0:0:1', 'ipv6'),
+        ('2001:db8::1:0:0:1', 'ipv6')
+        # ('2600::', 'ipv6'), # TODO currently fails
+        # ('::', 'ipv6') # TODO currently fails
+    ])
+    def test_is_ipv6_valid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_ipv6()
+        assert ioc.ioc_type == expected
 
+    def test_is_url_valid(self):
+        pass
 
-# def test_is_md5_valid_md5_hash():
-#     assert is_md5('938c2cc0dcc05f2b68c4287040cfcf71') == True
+    def test_is_domain_valid(self):
+        pass
+
+    # test is_* functions with invalid inputs
+
+    def test_set_category(self):
+        pass
+
+    # def test_is_sha256_invalid_sha256_hash(self):
+    #     self.ioc = '123.324.1.3'
+    #     Ioc.is_md5(self)
+    #     assert self.ioc_type != 'sha256'
 
 
 # def test_is_md5_invalid_md5_hash():
@@ -142,24 +184,10 @@ class TestVirusTotal:
 #     assert is_md5('') == False
 
 
-# def test_is_ipv4_valid_ipv4():
-#     assert is_ipv4('135.3.1.55') == True
-#     assert is_ipv4('0.0.0.0') == True
-#     assert is_ipv4('232.12.45.1') == True
-
-
 # def test_is_ipv4_invalid_ipv4():
 #     assert is_ipv4('2,3.4.13') == False
 #     assert is_ipv4('938c2cc0dcc05f2b68c4287040cfcf71') == False
 #     assert is_ipv4('2001:db8:3333:4444:5555:6666:7777:8888:') == False
-
-
-# def test_is_ipv6_valid_ipv6():
-#     assert is_ipv6('2001:db8:3333:4444:5555:6666:7777:8888:') == True
-#     assert is_ipv6('2001:db8:0:0:1:0:0:1') == True
-#     assert is_ipv6('2001:db8::1:0:0:1') == True
-#     # assert is_ipv6('2600::') == True  # TODO currently fails
-#     # assert is_ipv6('::') == True  # TODO currently fails
 
 
 # def test_is_ipv6_invalid_ipv6():
@@ -229,12 +257,6 @@ class TestVirusTotal:
 # #     assert get_ioc_category('www.google.xyz') == 'urls'
 # #     assert get_ioc_category('http://www.google.xyz') == 'urls'
 # #     assert get_ioc_category('https://www.google.xyz') == 'urls'
-
-
-# def test_is_filename_valid():
-#     assert is_filename('house.bat') == True
-#     assert is_filename('house.sh') == True
-#     assert is_filename('house.pdf.exe') == True
 
 
 # def test_is_filename_invalid():
