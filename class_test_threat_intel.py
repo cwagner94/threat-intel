@@ -160,11 +160,29 @@ class TestIoc:
         ioc.is_ipv6()
         assert ioc.ioc_type == expected
 
-    def test_is_url_valid(self):
-        pass
+    @pytest.mark.parametrize('value, expected', [
+        ('https://www.google.com/', 'url'),
+        ('http://www.google.com', 'url'),
+        ('http://www.google.org', 'url'),
+        ('https://www.google.io', 'url'),
+        ('http://www.google.ru', 'url')
+    ])
+    def test_is_url_valid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_url()
+        assert ioc.ioc_type == expected
 
-    def test_is_domain_valid(self):
-        pass
+    @pytest.mark.parametrize('value, expected', [
+        ('google.com', 'domain'),
+        ('google.ru', 'domain'),
+        ('somewebsite.xyz', 'domain'),
+        ('addiferentwebsite.org', 'domain'),
+        ('whoami.io', 'domain')
+    ])
+    def test_is_domain_valid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_domain()
+        assert ioc.ioc_type == expected
 
     # test is_* functions with invalid inputs
 
@@ -195,22 +213,6 @@ class TestIoc:
 #     assert is_ipv6('0.0.0.0') == False
 #     assert is_ipv6('232.12.45.1') == False
 #     assert is_ipv6('sentence:with:colonsinit') == False
-
-
-# def test_is_domain_valid():
-#     assert is_domain('google.com') == True
-#     assert is_domain('google.ru') == True
-#     assert is_domain('somewebsite.xyz') == True
-#     assert is_domain('addiferentwebsite.org') == True
-#     assert is_domain('whoami.io') == True
-
-
-# def test_is_url_valid():
-#     assert is_url('https://www.google.com/') == True
-#     assert is_url('http://www.google.com') == True
-#     assert is_url('http://www.google.org') == True
-#     assert is_url('https://www.google.io') == True
-#     assert is_url('http://www.google.ru') == True
 
 
 # def test_get_ioc_category_valid_files():
