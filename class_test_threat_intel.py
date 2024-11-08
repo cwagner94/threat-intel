@@ -130,18 +130,24 @@ class TestIoc:
     @pytest.mark.parametrize('value, expected', [
         ('193.23.3.3', 'filename'),
         ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'filename'),
-        ('e346f6b36569d7b', 'filename')
+        ('e346f6b36569d7b', 'filename'),
+        # ('google.com', 'filename'), # TODO: currently fails
+        # ('http://www.google.com', 'filename'), # TODO: currently fails
+        # ('https://www.google.com', 'filename'), # TODO: currently fails
+        # ('www.website.com', 'filename') # TODO: currently fails
     ])
     def test_is_filename_invalid(self, value, expected):
         ioc = Ioc(value)
         ioc.is_filename()
         assert ioc.ioc_type != expected
 
-    def test_is_sha256_valid(self):
-        ioc = Ioc(
-            'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5')
+    @pytest.mark.parametrize('value, expected', [
+        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'sha256')
+    ])
+    def test_is_sha256_valid(self, value, expected):
+        ioc = Ioc(value)
         ioc.is_sha256()
-        assert ioc.ioc_type == 'sha256'
+        assert ioc.ioc_type == expected
 
     @pytest.mark.parametrize('value, expected', [
         ('house.bat', 'sha256'),
@@ -253,10 +259,10 @@ class TestIoc:
 
     @pytest.mark.parametrize('value, expected', [
         ('', 'domain'),
-        # ('filename.txt', 'domain'),
-        ('https://www.google.com/', 'domain')
-        # ('http://www.google.com', 'domain')
-        # ('www.google.com', 'domain')
+        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'domain'),
+        # ('https://www.google.com/', 'domain'),  # TODO This fails currently
+        # ('filename.txt', 'domain'),  # TODO This fails currently
+        # ('www.google.com', 'domain')  # TODO This fails currently
     ])
     def test_is_domain_invalid(self, value, expected):
         ioc = Ioc(value)

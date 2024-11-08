@@ -146,3 +146,8 @@ if __name__ == "__main__":
     # 3 - url
     # input('Enter the desired option above: ')
     # validate input
+# ioc_type is a list
+    # Initialize as an empty list
+    # if len(list) == 1: proceed with that type
+    # if len(list) < 1: run the checking function
+    # if len(list) > 1: for ioc_type in list: make API call
