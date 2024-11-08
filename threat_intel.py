@@ -137,13 +137,12 @@ if __name__ == "__main__":
 # VT docs: https://docs.virustotal.com/reference/file
 # TODO Break up test_threat_intel.py into multiple files in tests folder
 # TODO How to differentiate between domains and filenames?
-    # Look for common domain suffix (.com, .edu, .org, etc.)
-    # Prompt user to specify
-    # Is this a filename?
-    # yes - proceed with filenames
-    # no - proceed with domains
-# Program breaks if ioc matches on more than one category
-    # ex. both url and filename
-    # If conflict arises, ask user to specify
-    # Search for both, come back with the one that doesn't have an error
-    # What if they're both valid?
+    # Call api for both and return both results or only valid results
+    # Prompt user to specify ioc type
+    # if ioc_type is not None
+    # This IOC matches multiple categories. Please select the number that corresponds with your desired IOC type
+    # 1 - filename
+    # 2 - domain
+    # 3 - url
+    # input('Enter the desired option above: ')
+    # validate input

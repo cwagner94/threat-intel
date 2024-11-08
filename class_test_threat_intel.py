@@ -127,16 +127,46 @@ class TestIoc:
         ioc.is_filename()
         assert ioc.ioc_type == expected
 
+    @pytest.mark.parametrize('value, expected', [
+        ('193.23.3.3', 'filename'),
+        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'filename'),
+        ('e346f6b36569d7b', 'filename')
+    ])
+    def test_is_filename_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_filename()
+        assert ioc.ioc_type != expected
+
     def test_is_sha256_valid(self):
         ioc = Ioc(
             'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5')
         ioc.is_sha256()
         assert ioc.ioc_type == 'sha256'
 
+    @pytest.mark.parametrize('value, expected', [
+        ('house.bat', 'sha256'),
+        ('34.2.222.4', 'sha256'),
+        ('938c2cc0dcc05f2b68c4287040cfcf71', 'sha256')
+    ])
+    def test_is_sha256_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_sha256()
+        assert ioc.ioc_type != expected
+
     def test_is_md5_valid(self):
         ioc = Ioc('938c2cc0dcc05f2b68c4287040cfcf71')
         ioc.is_md5()
         assert ioc.ioc_type == 'md5'
+
+    @pytest.mark.parametrize('value, expected', [
+        ('house.bat', 'md5'),
+        ('34.2.222.4', 'md5'),
+        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'md5')
+    ])
+    def test_is_md5_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_md5()
+        assert ioc.ioc_type != expected
 
     @pytest.mark.parametrize('value, expected', [
         ('132.5.5.12', 'ipv4'),
@@ -147,6 +177,16 @@ class TestIoc:
         ioc = Ioc(value)
         ioc.is_ipv4()
         assert ioc.ioc_type == expected
+
+    @pytest.mark.parametrize('value, expected', [
+        ('2001:db8:3333:4444:5555:6666:7777:8888:', 'ipv4'),
+        ('filename.sh', 'ipv4'),
+        ('exampledomain.com', 'ipv4')
+    ])
+    def test_is_ipv4_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_ipv4()
+        assert ioc.ioc_type != expected
 
     @pytest.mark.parametrize('value, expected', [
         ('2001:db8:3333:4444:5555:6666:7777:8888:', 'ipv6'),
@@ -161,6 +201,16 @@ class TestIoc:
         assert ioc.ioc_type == expected
 
     @pytest.mark.parametrize('value, expected', [
+        ('https://www.google.com/', 'ipv6'),
+        ('132.5.5.12', 'ipv6'),
+        ('filename.txt', 'ipv6')
+    ])
+    def test_is_ipv6_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_ipv6()
+        assert ioc.ioc_type != expected
+
+    @pytest.mark.parametrize('value, expected', [
         ('https://www.google.com/', 'url'),
         ('http://www.google.com', 'url'),
         ('http://www.google.org', 'url'),
@@ -173,96 +223,45 @@ class TestIoc:
         assert ioc.ioc_type == expected
 
     @pytest.mark.parametrize('value, expected', [
+        ('domain.com', 'url'),
+        ('file.txt', 'url'),
+        ('193.423.1.22', 'url'),
+        ('google.ru', 'url'),
+        ('website.io', 'url')
+    ])
+    def test_is_url_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_url()
+        assert ioc.ioc_type != expected
+
+    @pytest.mark.parametrize('value, expected', [
         ('google.com', 'domain'),
         ('google.ru', 'domain'),
         ('somewebsite.xyz', 'domain'),
         ('addiferentwebsite.org', 'domain'),
-        ('whoami.io', 'domain')
+        ('whoami.io', 'domain'),
+        ('website.edu', 'domain'),
+        ('google.org', 'domain'),
+        ('google.net', 'domain'),
+        ('differentdomain.top', 'domain')
+
     ])
     def test_is_domain_valid(self, value, expected):
         ioc = Ioc(value)
         ioc.is_domain()
         assert ioc.ioc_type == expected
 
-    # test is_* functions with invalid inputs
+    @pytest.mark.parametrize('value, expected', [
+        ('', 'domain'),
+        # ('filename.txt', 'domain'),
+        ('https://www.google.com/', 'domain')
+        # ('http://www.google.com', 'domain')
+        # ('www.google.com', 'domain')
+    ])
+    def test_is_domain_invalid(self, value, expected):
+        ioc = Ioc(value)
+        ioc.is_domain()
+        assert ioc.ioc_type != expected
 
     def test_set_category(self):
         pass
-
-    # def test_is_sha256_invalid_sha256_hash(self):
-    #     self.ioc = '123.324.1.3'
-    #     Ioc.is_md5(self)
-    #     assert self.ioc_type != 'sha256'
-
-
-# def test_is_md5_invalid_md5_hash():
-#     assert is_md5(
-#         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5') == False
-#     assert is_md5('294.234.55.2') == False
-#     assert is_md5('') == False
-
-
-# def test_is_ipv4_invalid_ipv4():
-#     assert is_ipv4('2,3.4.13') == False
-#     assert is_ipv4('938c2cc0dcc05f2b68c4287040cfcf71') == False
-#     assert is_ipv4('2001:db8:3333:4444:5555:6666:7777:8888:') == False
-
-
-# def test_is_ipv6_invalid_ipv6():
-#     assert is_ipv6('135.3.1.55') == False
-#     assert is_ipv6('0.0.0.0') == False
-#     assert is_ipv6('232.12.45.1') == False
-#     assert is_ipv6('sentence:with:colonsinit') == False
-
-
-# def test_get_ioc_category_valid_files():
-#     assert get_ioc_category(
-#         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5') == 'files'
-#     assert get_ioc_category('938c2cc0dcc05f2b68c4287040cfcf71') == 'files'
-#     assert get_ioc_category('filename.bat') == 'files'
-#     assert get_ioc_category('otherfile.sh') == 'files'
-
-
-# def test_get_ioc_category_valid_ip_addresses():
-#     assert get_ioc_category('10.4.2.4') == 'ip_addresses'
-#     assert get_ioc_category(
-#         '2001:db8:3333:4444:5555:6666:7777:8888:') == 'ip_addresses'
-#     assert get_ioc_category('0.0.0.0') == 'ip_addresses'
-#     assert get_ioc_category('2001:db8::1:0:0:1') == 'ip_addresses'
-#     assert get_ioc_category('10.3.45.10') != 'files'
-
-
-# # def test_get_ioc_category_valid_domain():
-# #     assert get_ioc_category('google.com') == 'domains'
-# #     assert get_ioc_category('google.org') == 'domains'
-# #     assert get_ioc_category('google.net') == 'domains'
-# #     assert get_ioc_category('google.edu') == 'domains'
-# #     assert get_ioc_category('google.top') == 'domains'
-# #     assert get_ioc_category('google.xyz') == 'domains'
-
-
-# # def test_get_ioc_category_valid_url():
-# #     assert get_ioc_category('www.google.com') == 'urls'
-# #     assert get_ioc_category('http://www.google.com') == 'urls'
-# #     assert get_ioc_category('https://www.google.com') == 'urls'
-# #     assert get_ioc_category('www.google.org') == 'urls'
-# #     assert get_ioc_category('http://www.google.org') == 'urls'
-# #     assert get_ioc_category('https://www.google.org') == 'urls'
-# #     assert get_ioc_category('www.google.net') == 'urls'
-# #     assert get_ioc_category('http://www.google.net') == 'urls'
-# #     assert get_ioc_category('https://www.google.net') == 'urls'
-# #     assert get_ioc_category('www.google.edu') == 'urls'
-# #     assert get_ioc_category('http://www.google.edu') == 'urls'
-# #     assert get_ioc_category('https://www.google.edu') == 'urls'
-# #     assert get_ioc_category('http://www.google.top') == 'urls'
-# #     assert get_ioc_category('https://www.google.top') == 'urls'
-# #     assert get_ioc_category('www.google.xyz') == 'urls'
-# #     assert get_ioc_category('http://www.google.xyz') == 'urls'
-# #     assert get_ioc_category('https://www.google.xyz') == 'urls'
-
-
-# def test_is_filename_invalid():
-#     assert is_filename('10.5.23.44') == False
-#     assert is_filename('blahbal.10') == False
-#     assert is_filename('hello.x') == False
-#     assert is_filename('2001:db8:3333:4444:5555:6666:7777:8888:') == False
