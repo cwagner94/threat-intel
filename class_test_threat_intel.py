@@ -1,6 +1,9 @@
 from unittest import mock
 from threat_intel import UserInput, Ioc, VirusTotal
 import pytest
+# import os
+
+# VT_API_KEY = os.getenv('VT_API_KEY')
 
 
 class TestUserInput:
@@ -20,38 +23,42 @@ class TestUserInput:
         assert self.valid == True
 
 
-# class TestVirusTotal:
-#     @pytest.mark.parametrize("params, expected_status", [
-#         ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
-#         ({"ioc": '193.42.2.4', "category": "files"}, 404)
-#     ])
-#     def test_get_api_response_200_status(self, mocker, params, expected_status):
-#         mocker.patch.object('os.getenv', return_value='mock_api_key')
-#         mocker.patch.object('threat_intel.VirusTotal.get_api_response',
-#                             return_value=mocker.Mock(status_code=expected_status))
+class TestVirusTotal:
+    @pytest.mark.parametrize("params, expected_status", [
+        ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
+        ({"ioc": 'filename.sh', "category": "files"}, 200),
+        ({"ioc": 'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5',
+         "category": "files"}, 200),
+        ({"ioc": '193.42.2.4', "category": "files"}, 404)
+    ])
+    def test_get_api_response_status(self, mocker, params, expected_status):
+        mocker.patch('os.getenv', return_value='mock_api_key')
+        mocker.patch('threat_intel.VirusTotal.get_api_response',
+                     return_value=mocker.Mock(status_code=expected_status))
 
-#         result = VirusTotal.get_api_response(self, params)
-#         assert result.status_code == expected_status
+        result = VirusTotal.get_api_response(self, params)
+        assert result.status_code == expected_status
 
-    # def test_get_api_response_404_status(self, mocker, params, expected_status):
-    #     mocker.patch('os.getenv', return_value='mock_api_key')
-    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
-    #                  return_value=mocker.Mock(status_code=expected_status))
+    # TODO
+    def test_get_api_response_raise_error():
+        pass
 
-    #     result = VirusTotal.get_api_response(self, params)
-    #     assert result.status_code == 404
+    @pytest.mark.parametrize("params, expected_status", [
+        ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
+        ({"ioc": 'filename.sh', "category": "files"}, 200),
+        ({"ioc": 'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5',
+         "category": "files"}, 200),
+        ({"ioc": '193.42.2.4', "category": "files"}, 404)
+    ])
+    def test_get_api_response_valid(self, params, expected_status):
+        vt = VirusTotal(self, params)
+        vt.get_api_response()
+        assert vt.api_response.status_code == expected_status
 
-    # def test_get_api_response_404_error_message(self, mocker):
-    #     mocker.patch('os.getenv', return_value='mock_api_key')
-    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
-    #                  side_effect=Exception('mocked error'))
-    #     mocker.patch('threat_intel.VirusTotal.get_api_response',
-    #                  return_value=mocker.Mock(status_code=404))
-    #     with pytest.raises(Exception) as exception:
-    #         VirusTotal.get_api_response(self)
-
-    #     assert exception.value.message == 'mocked error'
-    #     # assert "Request failed with status code 404" in str(exception.value)
+    # def test_get_api_response_ipv4(self):
+    #     vt = VirusTotal('124.4.2.4', 'ip_addresses')
+    #     vt.get_api_response()
+    #     assert vt.api_response.status_code == 200
 
     # def test_get_vt_ioc_sha256():
 #     response = get_vt_ioc(
@@ -105,15 +112,6 @@ class TestUserInput:
 # #     response = get_vt_ioc(
 # #         'google.com', 'domains')
 # #     assert response.status_code == 200
-
-
-# def test_get_vt_ioc_error_handling(mocker):
-#     mocker.patch('requests.get', return_value=mocker.Mock(status_code=404))
-
-#     with pytest.raises(Exception) as exception:
-#         get_vt_ioc('', 'ip_addresses')
-
-#     assert "Request failed with status code 404" in str(exception.value)
 
 
 class TestIoc:
