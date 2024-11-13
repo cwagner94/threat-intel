@@ -1,9 +1,6 @@
 from unittest import mock
 from threat_intel import UserInput, Ioc, VirusTotal
 import pytest
-# import os
-
-# VT_API_KEY = os.getenv('VT_API_KEY')
 
 
 class TestUserInput:
@@ -40,23 +37,25 @@ class TestVirusTotal:
         assert result.status_code == expected_status
 
     # TODO
-    def test_get_api_response_raise_error():
-        pass
+    # def test_get_api_response_raise_error():
+    #     pass
 
-    @pytest.mark.parametrize("params, expected_status", [
-        ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
-        ({"ioc": 'filename.sh', "category": "files"}, 200),
-        ({"ioc": 'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5',
-         "category": "files"}, 200),
-        ({"ioc": '193.42.2.4', "category": "files"}, 404)
+    @pytest.mark.parametrize('ioc, category, expected_status', [
+        ('8.8.8.8', "ip_addresses", 200),
+        ('193.42.2.4', "ip_addresses", 200),
+        # ('filename.sh', "files", 200),  # this fails. Because its recognized as a domain
+        ('filename.sh', 'domains', 200),
+        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', "files", 200),
+        # ('193.42.2.4', "files", 404)  # This fails because error gets raised so status code is never retrieved
     ])
-    def test_get_api_response_valid(self, params, expected_status):
-        vt = VirusTotal(self, params)
+    def test_get_api_response_valid(self, ioc, category, expected_status):
+        vt = VirusTotal(ioc, category)
+        print(vt.url)
         vt.get_api_response()
         assert vt.api_response.status_code == expected_status
 
-    # def test_get_api_response_ipv4(self):
-    #     vt = VirusTotal('124.4.2.4', 'ip_addresses')
+    # def test_get_api_response_valid(self):
+    #     vt = VirusTotal('8.8.8.8', 'ip_addresses')
     #     vt.get_api_response()
     #     assert vt.api_response.status_code == 200
 

@@ -134,8 +134,10 @@ def main():
 if __name__ == "__main__":
     main()
 
+# How does VT automatically identify if an IOC is file, domain, etc?
 # VT docs: https://docs.virustotal.com/reference/file
 # TODO Break up test_threat_intel.py into multiple files in tests folder
+    # Separate integration tests from unit tests
 # TODO How to differentiate between domains and filenames?
     # Call api for both and return both results or only valid results
     # Prompt user to specify ioc type
