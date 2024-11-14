@@ -60,6 +60,22 @@ def test_is_ipv6_invalid_ipv6():
     assert is_ipv6('sentence:with:colonsinit') == False
 
 
+def test_is_domain_valid():
+    assert is_domain('google.com') == True
+    assert is_domain('google.ru') == True
+    assert is_domain('somewebsite.xyz') == True
+    assert is_domain('addiferentwebsite.org') == True
+    assert is_domain('whoami.io') == True
+
+
+def test_is_url_valid():
+    assert is_url('https://www.google.com/') == True
+    assert is_url('http://www.google.com') == True
+    assert is_url('http://www.google.org') == True
+    assert is_url('https://www.google.io') == True
+    assert is_url('http://www.google.ru') == True
+
+
 def test_get_ioc_category_valid_files():
     assert get_ioc_category(
         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5') == 'files'
@@ -180,11 +196,3 @@ def test_get_vt_ioc_error_handling(mocker):
         get_vt_ioc('', 'ip_addresses')
 
     assert "Request failed with status code 404" in str(exception.value)
-
-
-def test_is_domain():
-    pass
-
-
-def test_is_url():
-    pass
