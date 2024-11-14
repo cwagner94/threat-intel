@@ -36,88 +36,44 @@ class TestVirusTotal:
         result = VirusTotal.get_api_response(self, params)
         assert result.status_code == expected_status
 
-    # TODO
-    # def test_get_api_response_raise_error():
-    #     pass
-
     @pytest.mark.parametrize('ioc, category, expected_status', [
         ('8.8.8.8', "ip_addresses", 200),
         ('193.42.2.4', "ip_addresses", 200),
         # ('filename.sh', "files", 200),  # this fails. Because its recognized as a domain
         ('filename.sh', 'domains', 200),
         ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', "files", 200),
-        # ('193.42.2.4', "files", 404)  # This fails because error gets raised so status code is never retrieved
+        ('938c2cc0dcc05f2b68c4287040cfcf71', 'files', 200),
+        ('23.4.1.43', 'ip_addresses', 200),
+        ('2001:db8:3333:4444:5555:6666:7777:8888', 'ip_addresses', 200),
+        # ('powershell.exe', 'files', 200), #TODO: fails - becomes domains
+        # ('file.sh', 'files', 200), #TODO: fails - becomes domains
+        # ('update.js', 'files', 200),  # TODO: fails - becomes domains
+        # ('https://www.google.com', 'urls', 200),  # TODO: fails - does url need to be encoded or hashed?
+        ('google.com', 'domains', 200)
     ])
-    def test_get_api_response_valid(self, ioc, category, expected_status):
+    def test_get_api_response_200(self, ioc, category, expected_status):
         vt = VirusTotal(ioc, category)
-        print(vt.url)
         vt.get_api_response()
         assert vt.api_response.status_code == expected_status
 
-    # def test_get_api_response_valid(self):
-    #     vt = VirusTotal('8.8.8.8', 'ip_addresses')
-    #     vt.get_api_response()
-    #     assert vt.api_response.status_code == 200
+    @pytest.mark.parametrize('ioc, category, expected_status', [
+        ('193.42.2.4', "files", 404)
+    ])
+    def test_get_api_response_404(self, ioc, category, expected_status):
+        with pytest.raises(Exception) as exception:
+            vt = VirusTotal(ioc, category)
+            vt.get_api_response()
 
-    # def test_get_vt_ioc_sha256():
-#     response = get_vt_ioc(
-#         'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'files')
-#     assert response.status_code == 200
-
-
-# def test_vt_ioc_md5():
-#     response = get_vt_ioc(
-#         '938c2cc0dcc05f2b68c4287040cfcf71', 'files')
-#     assert response.status_code == 200
-
-
-# def test_get_vt_ioc_ipv4():
-#     response = get_vt_ioc(
-#         '23.4.1.43', 'ip_addresses')
-#     assert response.status_code == 200
-
-
-# def test_get_vt_ioc_ipv6():
-#     response = get_vt_ioc(
-#         '2001:db8:3333:4444:5555:6666:7777:8888', 'ip_addresses')
-#     assert response.status_code == 200
-
-
-# # def test_get_vt_ioc_filename():
-# #     response = get_vt_ioc(
-# #         'powershell.exe', 'files')
-# #     assert response.status_code == 200
-
-
-# # def test_get_vt_ioc_filename():
-# #     response = get_vt_ioc(
-# #         'file.sh', 'files')
-# #     assert response.status_code == 200
-
-
-# # def test_get_vt_ioc_filename():
-# #     response = get_vt_ioc(
-# #         'update.js', 'files')
-# #     assert response.status_code == 200
-
-
-# # def test_get_vt_ioc_url():
-# #     response = get_vt_ioc(
-# #         'https://www.google.com', 'urls')
-# #     assert response.status_code == 200
-
-
-# # def test_get_vt_ioc_domain():
-# #     response = get_vt_ioc(
-# #         'google.com', 'domains')
-# #     assert response.status_code == 200
+        assert f'Request failed with status code {expected_status}' in str(
+            exception.value)
 
 
 class TestIoc:
     @pytest.mark.parametrize('value, expected', [
         ('house.bat', 'filename'),
         ('house.sh', 'filename'),
-        ('house.pdf.exe', 'filename')
+        ('house.pdf.exe', 'filename'),
+        ('update.js', 'filename')
     ])
     def test_is_filename_valid(self, value, expected):
         ioc = Ioc(value)
