@@ -36,14 +36,23 @@ class VirusTotal:
             "accept": "application/json",
             "x-apikey": self.api_key
         }
-        response = requests.get(self.url, headers=headers)
-        if response.status_code != 200:
-            raise Exception(
-                f'Request failed with status code {response.status_code}')
-        self.api_response = response
+        try:
+            response = requests.get(self.url, headers=headers)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError:
+            if response.status_code == 404:
+                self.api_response = 'No data available. 404 error'
+        except Exception as err:
+            print(f'An error occurred: {err}')
+            self.api_response = 'API error'
+        else:
+            self.api_response = response
 
     def get_ioc_data(self):
-        self.ioc_data = self.api_response.json()
+        if type(self.api_response) != str:
+            self.ioc_data = self.api_response.json()
+        else:
+            self.ioc_data = self.api_response
 
 
 class Ioc:
@@ -125,11 +134,14 @@ def main():
         ioc = Ioc(user_input.user_input)
         ioc.identify_ioc_category()
         print(ioc.category)
-        # for category in ioc.category:
-        #     vt = VirusTotal(ioc.ioc, category)
-        #     vt.get_api_response()
-        #     vt.get_ioc_data()
-        #     pprint(vt.ioc_data)
+        temp = []
+        for category in ioc.category:
+            vt = VirusTotal(ioc.ioc, category)
+            vt.get_api_response()
+            vt.get_ioc_data()
+            temp.append(vt.ioc_data)
+            # pprint(vt.ioc_data)
+    pprint(temp)
 
 
 if __name__ == "__main__":
@@ -139,4 +151,11 @@ if __name__ == "__main__":
 # TODO Break up test_threat_intel.py into multiple files in tests folder
     # Separate integration tests from unit tests
 # Improve the regex to differentiate between filename and domain
+    # Right now pretty much every filename or domain will show up as both
 # Refactor tests for new list-based logic
+# If one of the categories returns a 404 error
+    # remove if from the ioc.category list?
+    # continue the execution of the program
+# We can't search for filenames because there's too many options that get returned
+    # But domains work...
+    # Scrap filename option entirely?
