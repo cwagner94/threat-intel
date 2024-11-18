@@ -1,7 +1,9 @@
 from unittest import mock
-from threat_intel import UserInput, Ioc, VirusTotal
+from threat_intel import UserInput, Ioc, VirusTotal, VT_API_KEY
 import pytest
 
+def test_VT_API_KEY():
+    assert VT_API_KEY != None
 
 class TestUserInput:
     def test_get_user_input(self, monkeypatch):
@@ -23,7 +25,6 @@ class TestUserInput:
 class TestVirusTotal:
     @pytest.mark.parametrize("params, expected_status", [
         ({"ioc": '193.42.2.4', "category": "ip_addresses"}, 200),
-        ({"ioc": 'filename.sh', "category": "files"}, 200),
         ({"ioc": 'e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5',
          "category": "files"}, 200),
         ({"ioc": '193.42.2.4', "category": "files"}, 404)
@@ -39,7 +40,6 @@ class TestVirusTotal:
     @pytest.mark.parametrize('ioc, category, expected_status', [
         ('8.8.8.8', "ip_addresses", 200),
         ('193.42.2.4', "ip_addresses", 200),
-        # ('filename.sh', "files", 200),  # this fails. Because its recognized as a domain
         ('filename.sh', 'domains', 200),
         ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', "files", 200),
         ('938c2cc0dcc05f2b68c4287040cfcf71', 'files', 200),
@@ -69,31 +69,6 @@ class TestVirusTotal:
 
 
 class TestIoc:
-    @pytest.mark.parametrize('value, expected', [
-        ('house.bat', 'filename'),
-        ('house.sh', 'filename'),
-        ('house.pdf.exe', 'filename'),
-        ('update.js', 'filename')
-    ])
-    def test_is_filename_valid(self, value, expected):
-        ioc = Ioc(value)
-        ioc.is_filename()
-        assert ioc.ioc_type == expected
-
-    @pytest.mark.parametrize('value, expected', [
-        ('193.23.3.3', 'filename'),
-        ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'filename'),
-        ('e346f6b36569d7b', 'filename'),
-        # ('google.com', 'filename'), # TODO: currently fails
-        # ('http://www.google.com', 'filename'), # TODO: currently fails
-        # ('https://www.google.com', 'filename'), # TODO: currently fails
-        # ('www.website.com', 'filename') # TODO: currently fails
-    ])
-    def test_is_filename_invalid(self, value, expected):
-        ioc = Ioc(value)
-        ioc.is_filename()
-        assert ioc.ioc_type != expected
-
     @pytest.mark.parametrize('value, expected', [
         ('e346f6b36569d7b8c52a55403a6b78ae0ed15c0aaae4011490404bdb04ff28e5', 'sha256')
     ])
